@@ -8,7 +8,7 @@
         android:id="@+id/GCMMessagePicture"
         android:layout_width="wrap_content"
         android:layout_height="fill_parent"
-        android:src="@drawable/model1"/>
+        />
 
     <LinearLayout
         android:orientation="vertical"
@@ -18,13 +18,11 @@
         <TextView
             android:id="@+id/GCMMessageTitle"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Title1"/>
+            android:layout_height="wrap_content"/>
 
         <TextView
             android:id="@+id/GCMMessageDescription"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Description"/>
+            android:layout_height="wrap_content"/>
     </LinearLayout>
 </LinearLayout>
