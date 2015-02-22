@@ -28,7 +28,7 @@ public class GCMRegister extends AsyncTask<Void, Void, Boolean> {
 
     // A tag which will be used on logging
     private static final String TAG =
-            MainActivity.class.getClass().getSimpleName();
+            GCMRegister.class.getClass().getSimpleName();
 
     // A reference to the caller activity
     protected MainActivity mainActivity;

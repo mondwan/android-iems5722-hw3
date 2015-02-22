@@ -2,6 +2,13 @@ package com.iems5722.assignment3;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+
+import com.google.android.gms.gcm.GoogleCloudMessaging;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 
 
 /**
@@ -11,14 +18,10 @@ import android.content.Intent;
  * TODO: Customize class - update intent actions and extra parameters.
  */
 public class GcmIntentService extends IntentService {
-    // TODO: Rename actions, choose action names that describe tasks that this
-    // IntentService can perform, e.g. ACTION_FETCH_NEW_ITEMS
-    public static final String ACTION_FOO = "com.iems5722.assignment3.action.FOO";
-    public static final String ACTION_BAZ = "com.iems5722.assignment3.action.BAZ";
+    // A tag which will be used on logging
+    private static final String TAG =
+            GcmIntentService.class.getClass().getSimpleName();
 
-    // TODO: Rename parameters
-    public static final String EXTRA_PARAM1 = "com.iems5722.assignment3.extra.PARAM1";
-    public static final String EXTRA_PARAM2 = "com.iems5722.assignment3.extra.PARAM2";
 
     public GcmIntentService() {
         super("GcmIntentService");
@@ -26,35 +29,62 @@ public class GcmIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        if (intent != null) {
-            final String action = intent.getAction();
-            if (ACTION_FOO.equals(action)) {
-                final String param1 = intent.getStringExtra(EXTRA_PARAM1);
-                final String param2 = intent.getStringExtra(EXTRA_PARAM2);
-                handleActionFoo(param1, param2);
-            } else if (ACTION_BAZ.equals(action)) {
-                final String param1 = intent.getStringExtra(EXTRA_PARAM1);
-                final String param2 = intent.getStringExtra(EXTRA_PARAM2);
-                handleActionBaz(param1, param2);
+        Bundle extras = intent.getExtras();
+        GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(this);
+        // The getMessageType() intent parameter must be the intent you received
+        // in your BroadcastReceiver.
+        String messageType = gcm.getMessageType(intent);
+
+        if (!extras.isEmpty()) {
+            if (GoogleCloudMessaging.MESSAGE_TYPE_SEND_ERROR.equals(
+                    messageType
+            )) {
+                // Error handler
+                Log.e(
+                        TAG,
+                        String.format("GCM send error = |%s|", extras.toString())
+                );
+            } else if (GoogleCloudMessaging.MESSAGE_TYPE_DELETED.equals(
+                    messageType
+            )) {
+                // Delete handler
+                Log.e(
+                        TAG,
+                        String.format("GCM delete msg = |%s|", extras.toString())
+                );
+            } else if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(
+                    messageType
+            )) {
+                // Regular message handler
+
+                // We need following keys from extras
+                // {
+                //   url: http,
+                //   desc: string,
+                //   title: string
+                // }
+                URL serverURL;
+                String desc;
+                String title;
+                try {
+                    serverURL = new URL(extras.getString("url"));
+                    desc = extras.getString("desc");
+                    title = extras.getString("title");
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, String.format("GCM msg.url = |%s|", serverURL.toString()));
+                        Log.d(TAG, String.format("GCM msg.desc = |%s|", desc));
+                        Log.d(TAG, String.format("GCM msg.title = |%s|", title));
+                    }
+                } catch (MalformedURLException e) {
+                    Log.e(TAG, "IEMS GCM Server url malformed");
+                }
+
             }
+        } else {
+            Log.e(TAG, "Bundle from IEMS GCM server is wrong");
         }
-    }
 
-    /**
-     * Handle action Foo in the provided background thread with the provided
-     * parameters.
-     */
-    private void handleActionFoo(String param1, String param2) {
-        // TODO: Handle action Foo
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
-
-    /**
-     * Handle action Baz in the provided background thread with the provided
-     * parameters.
-     */
-    private void handleActionBaz(String param1, String param2) {
-        // TODO: Handle action Baz
-        throw new UnsupportedOperationException("Not yet implemented");
+        // Release the wake lock provided by the WakefulBroadcastReceiver.
+        GcmBroadcastReceiver.completeWakefulIntent(intent);
     }
 }
