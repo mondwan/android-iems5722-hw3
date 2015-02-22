@@ -1,5 +1,9 @@
 package com.iems5722.assignment3;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -9,6 +13,7 @@ import android.widget.ListView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import java.util.ArrayList;
 
@@ -20,6 +25,22 @@ public class MainActivity extends ActionBarActivity {
             MainActivity.class.getClass().getSimpleName();
 
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+
+    private static final String PROPERTY_APP_VERSION = "appVersion";
+
+    public static final String PROPERTY_REG_ID = "registration_id";
+
+    // This is the project number you got from the API Console, as described
+    // in "Getting Started."
+    protected String SENDER_ID = "145180457203";
+
+    // This is the registration ID on GCM.
+    // Default value is a empty string
+    protected String GCM_REG_ID = "";
+
+    // A reference of GCM instance
+    // Default value is null before initialization
+    protected GoogleCloudMessaging gcm = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +54,20 @@ public class MainActivity extends ActionBarActivity {
             // There is a play service
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "There is a play service");
+            }
+
+            // Short hand gcm variable
+            GoogleCloudMessaging gcm;
+            gcm = this.gcm = GoogleCloudMessaging.getInstance(this);
+
+            Context ctx = this.getApplicationContext();
+            this.GCM_REG_ID = this.getRegistrationId(ctx);
+            if (this.GCM_REG_ID.isEmpty()) {
+                // There is no such registration at first
+                // We need to register a new one
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "We are going to register a GCM ID");
+                }
             }
         } else {
             // There is no play service
@@ -103,15 +138,71 @@ public class MainActivity extends ActionBarActivity {
         int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
         if (resultCode != ConnectionResult.SUCCESS) {
             if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
-                GooglePlayServicesUtil.getErrorDialog(resultCode, this,
-                        PLAY_SERVICES_RESOLUTION_REQUEST).show();
+                GooglePlayServicesUtil.getErrorDialog(
+                        resultCode,
+                        this,
+                        PLAY_SERVICES_RESOLUTION_REQUEST
+                ).show();
             } else {
                 Log.e(TAG, "This device is not supported.");
-                finish();
+                // Close this activity
+                this.finish();
             }
             ret = false;
         }
 
         return ret;
+    }
+
+    protected String getRegistrationId(Context context) {
+        // Gets the current registration ID for application on GCM service.
+        // If result is empty, the app needs to register.
+        //
+        // @param context Context
+        // @return String
+        //   Empty string if there is no such registration
+
+        final SharedPreferences prefs = getGCMPreferences(context);
+        String registrationId = prefs.getString(PROPERTY_REG_ID, "");
+        if (registrationId.isEmpty()) {
+            Log.i(TAG, "Registration not found.");
+            return "";
+        }
+        // Check if app was updated; if so, it must clear the registration ID
+        // since the existing registration ID is not guaranteed to work with
+        // the new app version.
+        int registeredVersion = prefs.getInt(PROPERTY_APP_VERSION, Integer.MIN_VALUE);
+        int currentVersion = getAppVersion(context);
+        if (registeredVersion != currentVersion) {
+            Log.i(TAG, "App version changed.");
+            return "";
+        }
+        return registrationId;
+    }
+
+    private SharedPreferences getGCMPreferences(Context context) {
+        // @return Application's {@code SharedPreferences}.
+
+        // This sample app persists the registration ID in shared preferences, but
+        // how you store the registration ID in your app is up to you.
+        return getSharedPreferences(MainActivity.class.getSimpleName(),
+                Context.MODE_PRIVATE);
+    }
+
+    protected static int getAppVersion(Context context) {
+        // Application's version code from the {@code PackageManager}.
+        //
+        // @return int
+        try {
+            PackageInfo packageInfo =
+                    context.getPackageManager().getPackageInfo(
+                            context.getPackageName(),
+                            0
+                    );
+            return packageInfo.versionCode;
+        } catch (NameNotFoundException e) {
+            // should never happen
+            throw new RuntimeException("Could not get package name: " + e);
+        }
     }
 }
