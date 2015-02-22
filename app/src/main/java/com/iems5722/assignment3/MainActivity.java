@@ -30,10 +30,6 @@ public class MainActivity extends ActionBarActivity {
 
     public static final String PROPERTY_REG_ID = "registration_id";
 
-    // This is the project number you got from the API Console, as described
-    // in "Getting Started."
-    protected String SENDER_ID = "145180457203";
-
     // This is the registration ID on GCM.
     // Default value is a empty string
     protected String GCM_REG_ID = "";
@@ -68,6 +64,14 @@ public class MainActivity extends ActionBarActivity {
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "We are going to register a GCM ID");
                 }
+
+                // Register a new ID
+                GCMRegister gcmRegister = new GCMRegister(this);
+                gcmRegister.execute();
+            }
+
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, String.format("reg_id=|%s|", this.GCM_REG_ID));
             }
         } else {
             // There is no play service
@@ -162,7 +166,7 @@ public class MainActivity extends ActionBarActivity {
         // @return String
         //   Empty string if there is no such registration
 
-        final SharedPreferences prefs = getGCMPreferences(context);
+        final SharedPreferences prefs = getGCMPreferences();
         String registrationId = prefs.getString(PROPERTY_REG_ID, "");
         if (registrationId.isEmpty()) {
             Log.i(TAG, "Registration not found.");
@@ -180,16 +184,37 @@ public class MainActivity extends ActionBarActivity {
         return registrationId;
     }
 
-    private SharedPreferences getGCMPreferences(Context context) {
+    private SharedPreferences getGCMPreferences() {
         // @return Application's {@code SharedPreferences}.
 
         // This sample app persists the registration ID in shared preferences, but
         // how you store the registration ID in your app is up to you.
-        return getSharedPreferences(MainActivity.class.getSimpleName(),
+        return getSharedPreferences(
+                MainActivity.class.getSimpleName(),
                 Context.MODE_PRIVATE);
     }
 
-    protected static int getAppVersion(Context context) {
+    public void storeRegistrationId(Context context, String regId) {
+        final SharedPreferences prefs = getGCMPreferences();
+        int appVersion = getAppVersion(context);
+
+        if (BuildConfig.DEBUG) {
+            Log.d(
+                    TAG,
+                    String.format(
+                            "Saving regId |%s| on app version |%d|",
+                            regId,
+                            appVersion
+                    )
+            );
+        }
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(PROPERTY_REG_ID, regId);
+        editor.putInt(PROPERTY_APP_VERSION, appVersion);
+        editor.commit();
+    }
+
+    protected int getAppVersion(Context context) {
         // Application's version code from the {@code PackageManager}.
         //
         // @return int
