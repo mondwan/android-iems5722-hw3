@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Created by mondwan on 14/2/15.
  */
-public class GCMMessageAdapter extends ArrayAdapter<GCMMessage> {
+public class GCMMessageAdapter extends ArrayAdapter<GCMContentStorage> {
     // An adapter for publishing contents in Class::GCMMessage to ListView
 
     private static final String TAG =
@@ -24,7 +24,7 @@ public class GCMMessageAdapter extends ArrayAdapter<GCMMessage> {
     }
 
     public GCMMessageAdapter(
-            Context context, int resource, List<GCMMessage> messages) {
+            Context context, int resource, List<GCMContentStorage> messages) {
         super(context, resource, messages);
     }
 
@@ -50,7 +50,7 @@ public class GCMMessageAdapter extends ArrayAdapter<GCMMessage> {
         }
 
         // Get the GCMMessage reference
-        GCMMessage msg = this.getItem(pos);
+        GCMContentStorage msg = this.getItem(pos);
 
         TextView titleView = (TextView) convertView.findViewById(
                 R.id.GCMMessageTitle

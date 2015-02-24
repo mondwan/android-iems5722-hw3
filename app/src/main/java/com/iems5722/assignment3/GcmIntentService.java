@@ -34,7 +34,7 @@ public class GcmIntentService extends IntentService {
         super("GcmIntentService");
     }
 
-    protected void sendNotification(boolean success, GCMMessage msg) {
+    protected void sendNotification(boolean success, GCMContentStorage msg) {
         // If success, send notification based on given message
         // If not success, send error notification
 
@@ -79,7 +79,7 @@ public class GcmIntentService extends IntentService {
         boolean notificationSuccess = false;
 
         // A reference for storing incoming message
-        GCMMessage msg = null;
+        GCMContentStorage msg = null;
 
         if (!extras.isEmpty()) {
             if (GoogleCloudMessaging.MESSAGE_TYPE_SEND_ERROR.equals(
@@ -91,7 +91,7 @@ public class GcmIntentService extends IntentService {
                         String.format("GCM send error = |%s|", extras.toString())
                 );
                 notificationSuccess = false;
-                msg = new GCMMessage(null, "GCM send error", extras.toString());
+                msg = new GCMContentStorage(null, "GCM send error", extras.toString());
             } else if (GoogleCloudMessaging.MESSAGE_TYPE_DELETED.equals(
                     messageType
             )) {
@@ -101,7 +101,7 @@ public class GcmIntentService extends IntentService {
                         String.format("GCM delete msg = |%s|", extras.toString())
                 );
                 notificationSuccess = false;
-                msg = new GCMMessage(null, "GCM delete msg", extras.toString());
+                msg = new GCMContentStorage(null, "GCM delete msg", extras.toString());
             } else if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(
                     messageType
             )) {
@@ -143,7 +143,7 @@ public class GcmIntentService extends IntentService {
                                 )
                         );
                     }
-                    msg = new GCMMessage(serverURL, title, desc);
+                    msg = new GCMContentStorage(serverURL, title, desc);
                     notificationSuccess = true;
                 } catch (MalformedURLException e) {
                     Log.e(TAG, "IEMS GCM Server url malformed");
@@ -152,7 +152,7 @@ public class GcmIntentService extends IntentService {
         } else {
             Log.e(TAG, "Bundle from IEMS GCM server is wrong");
             notificationSuccess = false;
-            msg = new GCMMessage(
+            msg = new GCMContentStorage(
                     null,
                     "GCM server error",
                     "Bundle from IEMS GCM is wrong"

@@ -112,12 +112,12 @@ public class MainActivity extends ActionBarActivity {
 
     protected void publishFakedGCMMessages() {
         // Create a list of faked GCMMessage
-        ArrayList<GCMMessage> myMessages = new ArrayList<>();
+        ArrayList<GCMContentStorage> myMessages = new ArrayList<>();
         int i;
 
         for (i = 0; i < 10; i++) {
             try {
-                myMessages.add(new GCMMessage(
+                myMessages.add(new GCMContentStorage(
                         new URL(String.format("http://www.google.com/url%d", i)),
                         String.format("title%d", i),
                         String.format("description%d", i)
