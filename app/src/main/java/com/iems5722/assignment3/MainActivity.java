@@ -15,6 +15,8 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 
 
@@ -114,11 +116,16 @@ public class MainActivity extends ActionBarActivity {
         int i;
 
         for (i = 0; i < 10; i++) {
-            myMessages.add(new GCMMessage(
-                    String.format("url%d", i),
-                    String.format("title%d", i),
-                    String.format("description%d", i)
-            ));
+            try {
+                myMessages.add(new GCMMessage(
+                        new URL(String.format("http://www.google.com/url%d", i)),
+                        String.format("title%d", i),
+                        String.format("description%d", i)
+                ));
+            } catch (MalformedURLException e) {
+                // We won't come here
+                Log.wtf(TAG, "You should not fall in this catch");
+            }
         }
 
         // Get the GCMMessageListView

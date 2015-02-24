@@ -1,34 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.iems5722.assignment3" >
+          package="com.iems5722.assignment3">
 
-    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="com.iems5722.assignment3.permission.C2D_MESSAGE" />
+    <uses-permission android:name="android.permission.VIBRATE"/>
+
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="com.iems5722.assignment3.permission.C2D_MESSAGE"/>
 
     <permission
         android:name="com.iems5722.assignment3.permission.C2D_MESSAGE"
-        android:protectionLevel="signature" />
+        android:protectionLevel="signature"/>
 
-    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
 
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
         <meta-data
             android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version" />
+            android:value="@integer/google_play_services_version"/>
 
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
 
@@ -36,17 +38,17 @@
             android:name=".GcmBroadcastReceiver"
             android:enabled="true"
             android:exported="true"
-            android:permission="com.google.android.c2dm.permission.SEND" >
+            android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <action android:name="com.google.android.c2dm.intent.RECEIVE"/>
 
-                <category android:name="com.iems5722.assignment3" />
+                <category android:name="com.iems5722.assignment3"/>
             </intent-filter>
         </receiver>
 
         <service
             android:name=".GcmIntentService"
-            android:exported="false" />
+            android:exported="false"/>
     </application>
 
 </manifest>
