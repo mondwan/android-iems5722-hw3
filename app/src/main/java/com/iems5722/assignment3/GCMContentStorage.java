@@ -26,6 +26,14 @@ public class GCMContentStorage {
         return this.description;
     }
 
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     // Constructor
     //
     // @param url string
