@@ -55,9 +55,9 @@ public class NotificationSettingDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         // Use the Builder class for convenient dialog construction
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage(R.string.action_settings)
+        builder.setTitle(R.string.action_settings)
                 .setItems(
-                        R.array.notificationSettings,
+                        R.array.notification_types_array,
                         new DialogInterface.OnClickListener() {
                             public void onClick(
                                     DialogInterface dialog,
