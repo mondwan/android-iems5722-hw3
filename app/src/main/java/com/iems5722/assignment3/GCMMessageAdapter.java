@@ -8,6 +8,13 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
+import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
+
 import java.util.List;
 
 /**
@@ -19,13 +26,49 @@ public class GCMMessageAdapter extends ArrayAdapter<GCMContentStorage> {
     private static final String TAG =
             GCMMessageAdapter.class.getClass().getSimpleName();
 
+    protected DisplayImageOptions options;
+
     public GCMMessageAdapter(Context context, int textViewResourceId) {
         super(context, textViewResourceId);
+        this.initializeImageLoader();
     }
 
     public GCMMessageAdapter(
             Context context, int resource, List<GCMContentStorage> messages) {
         super(context, resource, messages);
+        this.initializeImageLoader();
+    }
+
+    protected void initializeImageLoader() {
+        // Unique initializeImageLoader method for this class custom attribute
+        //
+        // NOTE: sourced from sample project from ImageLoader
+
+        // Create global configuration and initializeImageLoader ImageLoader with this config
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(
+                this.getContext()
+        )
+                .threadPriority(Thread.NORM_PRIORITY - 2)
+                .denyCacheImageMultipleSizesInMemory()
+                .diskCacheFileNameGenerator(new Md5FileNameGenerator())
+                .diskCacheSize(1 * 1024 * 1024) // 1Mb
+                .tasksProcessingOrder(QueueProcessingType.LIFO)
+                .writeDebugLogs() // Remove for release app
+                .build();
+
+        // Initialize ImageLoader with configuration.
+        ImageLoader.getInstance().init(config);
+
+        // Cache an option for displaying image
+        this.options = new DisplayImageOptions.Builder()
+                .showImageOnLoading(R.drawable.ic_launcher)
+                .showImageForEmptyUri(R.drawable.model1)
+                .showImageOnFail(R.drawable.ic_red_cross)
+                .cacheInMemory(false)
+                .cacheOnDisk(false)
+                .considerExifParams(true)
+                .displayer(new RoundedBitmapDisplayer(20))
+                .build();
     }
 
     // Override default getView method so that it can publish our contents
@@ -64,7 +107,8 @@ public class GCMMessageAdapter extends ArrayAdapter<GCMContentStorage> {
                 R.id.GCMMessagePicture
         );
 
-        pictureView.setImageResource(R.drawable.model1);
+        ImageLoader.getInstance().displayImage(
+                msg.url.toString(), pictureView, this.options);
         titleView.setText(msg.getTitle());
         descriptionView.setText(msg.getDescription());
 

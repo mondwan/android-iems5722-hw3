@@ -6,13 +6,15 @@
 
     <ImageView
         android:id="@+id/GCMMessagePicture"
-        android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
+        android:layout_width="140dp"
+        android:layout_weight="1"
+        android:layout_height="140dp"
         />
 
     <LinearLayout
         android:orientation="vertical"
-        android:layout_width="fill_parent"
+        android:layout_width="0dp"
+        android:layout_weight="2"
         android:layout_height="fill_parent">
 
         <TextView

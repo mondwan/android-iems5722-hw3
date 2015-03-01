@@ -1,6 +1,7 @@
 package com.iems5722.assignment3;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -14,6 +15,10 @@ import android.widget.ListView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.nostra13.universalimageloader.core.ImageLoader;
+
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -45,7 +50,6 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        this.publishFakedGCMMessages();
 
         // Checkout whether we have play service or not
         if (this.checkPlayService()) {
@@ -79,6 +83,8 @@ public class MainActivity extends ActionBarActivity {
             // There is no play service
             Log.e(TAG, "There is no play service!");
         }
+
+        this.publishGCMMessages(this.getIntent());
     }
 
     @Override
@@ -110,28 +116,90 @@ public class MainActivity extends ActionBarActivity {
         this.checkPlayService();
     }
 
-    protected void publishFakedGCMMessages() {
-        // Create a list of faked GCMMessage
-        ArrayList<GCMContentStorage> myMessages = new ArrayList<>();
-        int i;
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        ImageLoader.getInstance().clearMemoryCache();
+        ImageLoader.getInstance().clearDiskCache();
+    }
 
-        for (i = 0; i < 10; i++) {
+    @Override
+    public void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        this.publishGCMMessages(intent);
+    }
+
+    protected void publishGCMMessages(Intent intent) {
+        // Create a list of GCM message
+        ArrayList<GCMContentStorage> myMessages = new ArrayList<>();
+
+        // Checkout whether there are any json data from Intent
+        Bundle b = intent.getExtras();
+        if (b != null) {
+            if (BuildConfig.DEBUG) {
+                Log.d(
+                        TAG,
+                        "There are json data"
+                );
+            }
+            String jsonArrayString = b.getString("data");
+
             try {
-                myMessages.add(new GCMContentStorage(
-                        new URL(String.format("http://www.google.com/url%d", i)),
-                        String.format("title%d", i),
-                        String.format("description%d", i)
-                ));
-            } catch (MalformedURLException e) {
-                // We won't come here
-                Log.wtf(TAG, "You should not fall in this catch");
+                JSONArray jsonArray = new JSONArray(jsonArrayString);
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    String title = jsonArray.getJSONObject(i).getString(
+                            "title"
+                    );
+                    String description = jsonArray.getJSONObject(i).getString(
+                            "desc"
+                    );
+                    String urlString = jsonArray.getJSONObject(i).getString(
+                            "image"
+                    );
+
+                    URL url;
+
+                    try {
+                        url = new URL(urlString);
+                        myMessages.add(
+                                new GCMContentStorage(
+                                        url,
+                                        title,
+                                        description
+                                )
+                        );
+                    } catch (MalformedURLException e) {
+                        Log.e(
+                                TAG,
+                                String.format(
+                                        "json.image url errors |%s|",
+                                        e.getMessage())
+                        );
+                    }
+
+                }
+            } catch (JSONException e) {
+                Log.e(
+                        TAG,
+                        String.format(
+                                "Data JSON errors |%s|",
+                                e.getMessage()
+                        )
+                );
+            }
+        } else {
+            if (BuildConfig.DEBUG) {
+                Log.d(
+                        TAG,
+                        "There is no json data"
+                );
             }
         }
 
         // Get the GCMMessageListView
         ListView listView = (ListView) this.findViewById(R.id.GCMMessageListView);
 
-        // Link up our faked array with the adapter
+        // Link up our array with the adapter
         listView.setAdapter(
                 new GCMMessageAdapter(
                         this, R.layout.gcm_message_item_view, myMessages

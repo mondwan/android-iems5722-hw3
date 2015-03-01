@@ -31,10 +31,10 @@ import java.net.URL;
  * a service on a separate handler thread.
  * <p/>
  */
-public class GcmIntentService extends IntentService {
+public class GCMIntentService extends IntentService {
     // A tag which will be used on logging
     private static final String TAG =
-            GcmIntentService.class.getClass().getSimpleName();
+            GCMIntentService.class.getClass().getSimpleName();
 
     // An unique ID defined by our application
     public static final int NOTIFICATION_ID = 1;
@@ -42,8 +42,8 @@ public class GcmIntentService extends IntentService {
     // A reference for storing logging message if any
     protected String loggingMessage;
 
-    public GcmIntentService() {
-        super("GcmIntentService");
+    public GCMIntentService() {
+        super("GCMIntentService");
     }
 
     protected void sendNotification(boolean success, GCMContentStorage msg) {
@@ -83,7 +83,7 @@ public class GcmIntentService extends IntentService {
                 this,
                 0,
                 intent,
-                0
+                PendingIntent.FLAG_UPDATE_CURRENT
         );
 
         // Setup notification object
@@ -278,6 +278,6 @@ public class GcmIntentService extends IntentService {
         this.sendNotification(notificationSuccess, msg);
 
         // Release the wake lock provided by the WakefulBroadcastReceiver.
-        GcmBroadcastReceiver.completeWakefulIntent(intent);
+        GCMBroadcastReceiver.completeWakefulIntent(intent);
     }
 }
