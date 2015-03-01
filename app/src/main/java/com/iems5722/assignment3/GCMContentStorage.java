@@ -14,12 +14,16 @@ public class GCMContentStorage {
 
     protected String description;
 
+    public URL getUrl() {
+        return this.url;
+    }
+
     public String getTitle() {
-        return title;
+        return this.title;
     }
 
     public String getDescription() {
-        return description;
+        return this.description;
     }
 
     // Constructor
