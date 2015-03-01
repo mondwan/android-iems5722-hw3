@@ -25,7 +25,9 @@ import java.net.URL;
 import java.util.ArrayList;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity
+        implements NotificationSettingDialogFragment.
+        NotificationSettingDialogListener {
 
     // A tag which will be used on logging
     private static final String TAG =
@@ -36,6 +38,8 @@ public class MainActivity extends ActionBarActivity {
     private static final String PROPERTY_APP_VERSION = "appVersion";
 
     public static final String PROPERTY_REG_ID = "registration_id";
+
+    public static final String NOTIFICATION_CHOICE = "notification_choice";
 
     // This is the registration ID on GCM.
     // Default value is a empty string
@@ -104,6 +108,12 @@ public class MainActivity extends ActionBarActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            NotificationSettingDialogFragment dialog =
+                    new NotificationSettingDialogFragment();
+            dialog.show(
+                    MainActivity.this.getFragmentManager(),
+                    "main"
+            );
             return true;
         }
 
@@ -127,6 +137,19 @@ public class MainActivity extends ActionBarActivity {
     public void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         this.publishGCMMessages(intent);
+    }
+
+    public void processUserChoice(int choice) {
+        // A callback for NotificationSettingDialog
+        //
+        // @param choice int
+        //   What user's choice
+
+        final SharedPreferences prefs = getGCMPreferences();
+
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putInt(this.NOTIFICATION_CHOICE, choice);
+        editor.commit();
     }
 
     protected void publishGCMMessages(Intent intent) {
