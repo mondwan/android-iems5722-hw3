@@ -39,7 +39,7 @@ public class MainActivity extends ActionBarActivity
 
     public static final String PROPERTY_REG_ID = "registration_id";
 
-    public static final String NOTIFICATION_CHOICE = "notification_choice";
+    public static final String NOTIFICATION_TYPE = "notification_type";
 
     // This is the registration ID on GCM.
     // Default value is a empty string
@@ -91,13 +91,13 @@ public class MainActivity extends ActionBarActivity
         this.publishGCMMessages(this.getIntent());
     }
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -136,6 +136,7 @@ public class MainActivity extends ActionBarActivity
     @Override
     public void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+        this.setIntent(intent);
         this.publishGCMMessages(intent);
     }
 
@@ -145,10 +146,13 @@ public class MainActivity extends ActionBarActivity
         // @param choice int
         //   What user's choice
 
-        final SharedPreferences prefs = getGCMPreferences();
+        final SharedPreferences prefs = getSharedPreferences(
+                "assignment3",
+                Context.MODE_PRIVATE
+        );
 
         SharedPreferences.Editor editor = prefs.edit();
-        editor.putInt(this.NOTIFICATION_CHOICE, choice);
+        editor.putInt(this.NOTIFICATION_TYPE, choice);
         editor.commit();
     }
 

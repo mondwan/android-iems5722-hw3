@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -87,12 +88,18 @@ public class GCMIntentService extends IntentService {
         );
 
         // Setup notification object
+        final SharedPreferences prefs = getSharedPreferences(
+                "assignment3",
+                Context.MODE_PRIVATE
+        );
+        int notificationType = prefs.getInt(
+                MainActivity.NOTIFICATION_TYPE,
+                NotificationSettingDialogFragment.DEFAULT
+        );
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
                         .setAutoCancel(true)
                         .setOnlyAlertOnce(true)
-                        .setSound(alarmSound)
-                        .setVibrate(new long[]{100, 1000, 1000, 1000, 1000})
                         .setContentTitle(msg.getTitle())
                         .setContentText(msg.getDescription())
                         .setContentIntent(contentIntent)
@@ -101,6 +108,18 @@ public class GCMIntentService extends IntentService {
                                         R.drawable.model1 :
                                         R.drawable.ic_red_cross
                         );
+
+        switch (notificationType) {
+            case NotificationSettingDialogFragment.SLIENT:
+                break;
+            case NotificationSettingDialogFragment.DEFAULT:
+                mBuilder.setSound(alarmSound);
+                mBuilder.setVibrate(new long[]{100, 1000, 1000, 1000, 1000});
+                break;
+            case NotificationSettingDialogFragment.VIBRATE_ONLY:
+                mBuilder.setVibrate(new long[]{100, 1000, 1000, 1000, 1000});
+                break;
+        }
 
         // Prompt notification
         notificationManager.notify(NOTIFICATION_ID, mBuilder.build());
